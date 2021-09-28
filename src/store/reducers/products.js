@@ -1,4 +1,5 @@
 import PRODUCTS from '../../data/dummy-data';
+import { DELETE_PRODUCT } from '../actions/products';
 
 const initialState = {
   availableProducts: PRODUCTS,
@@ -7,8 +8,14 @@ const initialState = {
 
 export const productReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'value':
-      return { ...state };
+    case DELETE_PRODUCT:
+      return {
+        ...state,
+        userProducts: state.userProducts.filter((pr) => pr.id !== action.pid),
+        availableProducts: state.availableProducts.filter(
+          (pr) => pr.id !== action.pid
+        ),
+      };
 
     default:
       return state;

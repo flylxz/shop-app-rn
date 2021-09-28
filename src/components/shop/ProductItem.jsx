@@ -1,24 +1,36 @@
-import React from 'react';
-import { Button, Image, StyleSheet, Text, View } from 'react-native';
+import React, { Children } from 'react';
+import {
+  Button,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  TouchableNativeFeedback,
+  Platform,
+} from 'react-native';
 import Colors from '../../constants/Colors';
 
-export const ProductItem = ({ item, onViewDetail, onAddToCart }) => {
+export const ProductItem = ({ item, onSelect, children }) => {
+  const TouchableComponent =
+    Platform.OS === 'android' && Platform.Version >= 21
+      ? TouchableNativeFeedback
+      : TouchableOpacity;
   return (
     <View style={styles.product}>
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: item.imageUrl }} style={styles.image} />
-      </View>
-      <View style={styles.details}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.price}>${item.price.toFixed(2)}</Text>
-      </View>
-      <View style={styles.action}>
-        <Button
-          color={Colors.primary}
-          title="View Details"
-          onPress={onViewDetail}
-        />
-        <Button color={Colors.primary} title="To Cart" onPress={onAddToCart} />
+      <View style={styles.touchable}>
+        <TouchableComponent onPress={onSelect} useForeground>
+          <View>
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: item.imageUrl }} style={styles.image} />
+            </View>
+            <View style={styles.details}>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.price}>${item.price.toFixed(2)}</Text>
+            </View>
+            <View style={styles.action}>{children}</View>
+          </View>
+        </TouchableComponent>
       </View>
     </View>
   );
@@ -36,7 +48,10 @@ const styles = StyleSheet.create({
     height: 350,
     margin: 20,
   },
-
+  touchable: {
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
   imageContainer: {
     width: '100%',
     height: '60%',
@@ -55,16 +70,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    marginVertical: 4,
+    fontFamily: 'montserrat-bold',
+    marginVertical: 2,
   },
   price: {
     fontSize: 14,
+    fontFamily: 'montserrat',
     color: '#888',
   },
   action: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    height: '25%',
+    height: '23%',
   },
 });
