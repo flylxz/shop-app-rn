@@ -40,11 +40,24 @@ export const productReducer = (state = initialState, action) => {
         action.productData.title,
         action.productData.imageUrl,
         action.productData.description,
-        state.userProducts[productIdx].price
+        action.productData.price
       );
 
-      const updatedUserProducts = console.log('update');
-      return { ...state };
+      const updatedUserProducts = [...state.userProducts];
+      updatedUserProducts[productIdx] = updatedProduct;
+
+      const availableProductsIdx = state.availableProducts.findIndex(
+        (prod) => prod.id === action.pid
+      );
+
+      const updatedAvailableProducts = [...state.availableProducts];
+      updatedAvailableProducts[availableProductsIdx] = updatedProduct;
+
+      return {
+        ...state,
+        availableProducts: updatedAvailableProducts,
+        userProducts: updatedUserProducts,
+      };
 
     case DELETE_PRODUCT:
       return {

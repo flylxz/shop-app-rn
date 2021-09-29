@@ -6,6 +6,7 @@ import {
   FlatList,
   Platform,
   Button,
+  Alert,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -17,6 +18,17 @@ import { deleteProduct } from '../../store/actions/products';
 export const UserProductsScreen = ({ navigation }) => {
   const { userProducts } = useSelector((state) => state.products);
   const dispatch = useDispatch();
+
+  const deleteHandler = (id) => {
+    Alert.alert('Are you sure?', 'Do you really want to delete this item?', [
+      { text: 'No', style: 'default' },
+      {
+        text: 'Yes',
+        style: 'destructive',
+        onPress: () => dispatch(deleteProduct(id)),
+      },
+    ]);
+  };
 
   return (
     <FlatList
@@ -34,7 +46,7 @@ export const UserProductsScreen = ({ navigation }) => {
           <Button
             color={Colors.primary}
             title="Delete"
-            onPress={() => dispatch(deleteProduct(item.id))}
+            onPress={() => deleteHandler(item.id)}
           />
         </ProductItem>
       )}

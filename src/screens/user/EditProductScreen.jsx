@@ -7,14 +7,17 @@ import {
   TextInput,
   Platform,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { CustomHeaderButton } from '../../components/UI/CustomHeaderButton';
+import { createProduct, updateProduct } from '../../store/actions/products';
 
 export const EditProductScreen = ({ navigation }) => {
   const prodId = navigation.getParam('productId');
   const editedProduct = useSelector((state) =>
     state.products.userProducts.find((pr) => pr.id === prodId)
   );
+
+  const dispatch = useDispatch();
 
   const [title, setTitle] = useState(editedProduct ? editedProduct.title : '');
   const [imageUrl, setImageUrl] = useState(
@@ -28,8 +31,13 @@ export const EditProductScreen = ({ navigation }) => {
   );
 
   const submitHandler = useCallback(() => {
-    console.log('submit');
-  }, []);
+    if (editedProduct) {
+      dispatch(updateProduct(prodId, title, imageUrl, description, +price));
+    } else {
+      dispatch(createProduct(title, imageUrl, description, +price));
+    }
+    navigation.goBack();
+  }, [dispatch, prodId, title, description, imageUrl, description, price]);
 
   useEffect(() => {
     navigation.setParams({ submit: submitHandler });
