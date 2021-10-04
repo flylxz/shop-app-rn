@@ -1,15 +1,20 @@
-import React from 'react';
-import { Button, FlatList, Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import { Button, FlatList, Platform, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ProductItem } from '../../components/shop/ProductItem';
 import { CustomHeaderButton } from '../../components/UI/CustomHeaderButton';
 import Colors from '../../constants/Colors';
 import { addToCart } from '../../store/actions/cart';
+import { fetchProducts } from '../../store/actions/products';
 
 export const ProductsOverviewScreen = ({ navigation }) => {
   const { availableProducts } = useSelector((state) => state.products);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const selectItemHandler = (id, title) => {
     navigation.navigate('ProductDetail', {
@@ -18,7 +23,7 @@ export const ProductsOverviewScreen = ({ navigation }) => {
     });
   };
 
-  return (
+  return availableProducts.length ? (
     <FlatList
       data={availableProducts}
       renderItem={({ item }) => (
@@ -40,6 +45,8 @@ export const ProductsOverviewScreen = ({ navigation }) => {
       )}
       keyExtractor={(item) => item.id}
     />
+  ) : (
+    <Text>Nothing here</Text>
   );
 };
 

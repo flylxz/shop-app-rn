@@ -1,8 +1,9 @@
 import React from 'react';
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { ActivityIndicator, SafeAreaView, View, Text } from 'react-native';
 import { Provider } from 'react-redux';
 import { useFonts } from 'expo-font';
+import thunk from 'redux-thunk';
 
 import { productReducer } from './src/store/reducers/products';
 import { cartReducer } from './src/store/reducers/cart';
@@ -16,10 +17,7 @@ const rootReducer = combineReducers({
   orders: ordersReducer,
 });
 
-const store = createStore(
-  rootReducer,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-);
+const store = createStore(rootReducer, applyMiddleware(thunk));
 
 export default function App() {
   const [loaded, error] = useFonts({
