@@ -17,7 +17,6 @@ const initialState = {
 export const productReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_PRODUCTS:
-      console.log('=====>', action);
       return {
         ...state,
         availableProducts: action.products,

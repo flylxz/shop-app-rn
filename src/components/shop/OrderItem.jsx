@@ -11,13 +11,14 @@ export const OrderItem = ({ item }) => {
     <Card style={styles.orderItem}>
       <View style={styles.summary}>
         <Text style={styles.date}>
-          {item.date.toLocaleDateString('en-EN', {
+          {/* {item.date.toLocaleDateString('en-EN', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-          })}
+          })} */}
+          {item.date}
         </Text>
         <Text style={styles.totalAmount}>${item.totalAmount.toFixed(2)}</Text>
       </View>

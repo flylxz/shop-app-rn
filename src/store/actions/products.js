@@ -1,57 +1,47 @@
-import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue, set, child, get } from 'firebase/database';
-import { firebaseConfig } from '../../firebase/config';
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
 export const DELETE_PRODUCT = 'DELETE_PRODUCT';
 export const CREATE_PRODUCT = 'CREATE_PRODUCT';
 export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const SET_PRODUCTS = 'SET_PRODUCTS';
 
-export const fetchProducts = () => {
-  return (dispatch) => {
-    const products = () =>
-      get(child(ref(db), 'products/'))
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            const transformData = Object.values(data);
-            return transformData;
-            // dispatch({ type: SET_PRODUCTS, products: transformData });
-          } else {
-            console.log('No data available');
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+export const fetchProducts = () => async (dispatch) => {
+  const response = await fetch('http://10.0.1.50:3000/products');
+  if (!response.ok) {
+    throw new Error('Something went wrong!');
+  }
+  const data = await response.json();
 
-    const data = products();
-    dispatch({ type: SET_PRODUCTS, products: data });
-  };
+  dispatch({ type: SET_PRODUCTS, products: data });
 };
 
-export const deleteProduct = (productId) => ({
-  type: DELETE_PRODUCT,
-  pid: productId,
-});
+export const deleteProduct = (productId) => async (dispatch) => {
+  await fetch(`http://10.0.1.50:3000/products/${productId}`, {
+    method: 'DELETE',
+  });
 
-export const createProduct = (title, imageUrl, description, price) => {
-  return async (dispatch) => {
-    const prodId = Date.now();
-    const postProduct = (title, imageUrl, description, price) => {
-      set(ref(db, 'products/' + prodId), {
+  dispatch({
+    type: DELETE_PRODUCT,
+    pid: productId,
+  });
+};
+
+export const createProduct =
+  (title, imageUrl, description, price) => async (dispatch) => {
+    const prodId = Date.now().toString();
+
+    await fetch('http://10.0.1.50:3000/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         id: prodId,
+        ownerId: 'u1',
         title,
         imageUrl,
         price,
         description,
-      });
-    };
-
-    postProduct(prodId, title, imageUrl, description, price);
+      }),
+    });
 
     dispatch({
       type: CREATE_PRODUCT,
@@ -64,15 +54,38 @@ export const createProduct = (title, imageUrl, description, price) => {
       },
     });
   };
-};
 
-export const updateProduct = (id, title, imageUrl, description, price) => ({
-  type: UPDATE_PRODUCT,
-  pid: id,
-  productData: {
-    title,
-    description,
-    imageUrl,
-    price,
-  },
-});
+export const updateProduct =
+  (id, title, imageUrl, description, price) => async (dispatch) => {
+    const response = await fetch(`http://10.0.1.50:3000/products!/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id,
+        ownerId: 'u1',
+        title,
+        imageUrl,
+        price,
+        description,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Something went wrong!');
+    }
+
+    // const data = await response.json();
+    // console.log('update product action: ', data);
+
+    dispatch({
+      type: UPDATE_PRODUCT,
+      pid: id,
+      productData: {
+        title,
+        description,
+        imageUrl,
+        price,
+      },
+    });
+  };

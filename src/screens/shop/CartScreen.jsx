@@ -1,5 +1,12 @@
-import React from 'react';
-import { Button, StyleSheet, Text, View, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { CartItem } from '../../components/shop/CartItem';
 import { Card } from '../../components/UI/Card';
@@ -8,8 +15,16 @@ import { removeFromCart } from '../../store/actions/cart';
 import { addOrder } from '../../store/actions/orders';
 
 export const CartScreen = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const { items, totalAmount } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
+
+  const sendOrderHandler = async () => {
+    setIsLoading(true);
+    await dispatch(addOrder(items, totalAmount));
+    setIsLoading(false);
+  };
 
   return (
     <View style={styles.screen}>
@@ -20,12 +35,18 @@ export const CartScreen = () => {
             ${Math.round(totalAmount.toFixed(2) * 100) / 100}
           </Text>
         </Text>
-        <Button
-          title="Order Now"
-          color={Colors.accent}
-          disabled={!Object.values(items).length}
-          onPress={() => dispatch(addOrder(items, totalAmount))}
-        />
+        {isLoading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="small" color={Colors.primary} />
+          </View>
+        ) : (
+          <Button
+            title="Order Now"
+            color={Colors.accent}
+            disabled={!Object.values(items).length}
+            onPress={sendOrderHandler}
+          />
+        )}
       </Card>
       <View>
         <FlatList
@@ -34,8 +55,8 @@ export const CartScreen = () => {
           renderItem={({ item }) => (
             <CartItem
               item={item}
-              onRemove={() => dispatch(removeFromCart(item.id))}
               deletable
+              onRemove={() => dispatch(removeFromCart(item.id))}
             />
           )}
         />
@@ -67,5 +88,11 @@ const styles = StyleSheet.create({
   },
   amount: {
     color: Colors.accent,
+  },
+  center: {
+    // flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'flex-end',
+    marginRight: 40,
   },
 });
