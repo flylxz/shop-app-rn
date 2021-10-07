@@ -1,6 +1,13 @@
 import React from 'react';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { ActivityIndicator, SafeAreaView, View, Text } from 'react-native';
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  View,
+  Text,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import { Provider } from 'react-redux';
 import { useFonts } from 'expo-font';
 import thunk from 'redux-thunk';
@@ -8,13 +15,16 @@ import thunk from 'redux-thunk';
 import { productReducer } from './src/store/reducers/products';
 import { cartReducer } from './src/store/reducers/cart';
 import { ordersReducer } from './src/store/reducers/orders';
+import { authReducer } from './src/store/reducers/auth';
 import ShopNavigator from './src/navigation/ShopNavigator';
 import Colors from './src/constants/Colors';
+import { NavigationContainer } from './src/navigation/NavigationContainer';
 
 const rootReducer = combineReducers({
   products: productReducer,
   cart: cartReducer,
   orders: ordersReducer,
+  auth: authReducer,
 });
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
@@ -49,7 +59,11 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <ShopNavigator />
+      <StatusBar
+        barStyle={Platform.OS === 'android' ? 'light-content' : 'dark-content'}
+        backgroundColor={Platform.OS === 'android' ? Colors.primary : ''}
+      />
+      <NavigationContainer />
     </Provider>
   );
 }

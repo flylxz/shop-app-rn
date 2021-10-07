@@ -3,14 +3,23 @@ export const CREATE_PRODUCT = 'CREATE_PRODUCT';
 export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const SET_PRODUCTS = 'SET_PRODUCTS';
 
-export const fetchProducts = () => async (dispatch) => {
-  const response = await fetch('http://10.0.1.50:3000/products');
-  if (!response.ok) {
-    throw new Error('Something went wrong!');
-  }
-  const data = await response.json();
+export const fetchProducts = () => async (dispatch, getState) => {
+  const { userId } = getState().auth;
+  try {
+    const response = await fetch('http://10.0.1.50:3000/products');
+    if (!response.ok) {
+      throw new Error('Something went wrong!');
+    }
+    const data = await response.json();
 
-  dispatch({ type: SET_PRODUCTS, products: data });
+    dispatch({
+      type: SET_PRODUCTS,
+      products: data,
+      userProducts: data.filter((prod) => prod.ownerId === userId),
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const deleteProduct = (productId) => async (dispatch) => {
@@ -25,8 +34,9 @@ export const deleteProduct = (productId) => async (dispatch) => {
 };
 
 export const createProduct =
-  (title, imageUrl, description, price) => async (dispatch) => {
+  (title, imageUrl, description, price) => async (dispatch, getState) => {
     const prodId = Date.now().toString();
+    const { userId, token } = getState().auth;
 
     await fetch('http://10.0.1.50:3000/products', {
       method: 'POST',
@@ -35,7 +45,7 @@ export const createProduct =
       },
       body: JSON.stringify({
         id: prodId,
-        ownerId: 'u1',
+        ownerId: userId,
         title,
         imageUrl,
         price,
@@ -51,6 +61,7 @@ export const createProduct =
         description,
         imageUrl,
         price,
+        ownerId: userId,
       },
     });
   };
